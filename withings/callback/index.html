@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="robots" content="noindex">
+<title>Callback</title>
+</head>
+<body>
+<p id="msg">Forwarding to the local app&hellip;</p>
+<script>
+  // Relays an OAuth redirect to an app running on this computer. Authorization codes expire within seconds, so the
+  // page forwards at once. The local port travels in the state parameter as "<port>.<nonce>"; the target is always
+  // localhost, so the page cannot be used to redirect anywhere else.
+  (function () {
+    var params = new URLSearchParams(window.location.search);
+    var state = params.get("state") || "";
+    var match = /^(\d{4,5})\.[A-Za-z0-9_-]+$/.exec(state);
+    var port = match ? Number(match[1]) : 0;
+    if (port < 1024 || port > 65535) {
+      document.getElementById("msg").textContent = "This page only forwards sign-in callbacks to a local app.";
+      return;
+    }
+    window.location.replace("http://localhost:" + port + "/api/v1/sources/withings/callback" + window.location.search);
+  })();
+</script>
+</body>
+</html>
